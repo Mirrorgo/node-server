@@ -137,7 +137,7 @@ https://www.w3schools.com/nodejs/obj_http_incomingmessage.asp
 
 上方是旧版的url
 
-```javascript
+```js
 ┌───────────────────────────────────────────────────────────────────────────────┐
 │                                       href                                    │
 ├────────┬──┬─────────────────┬────────────────────┬───────────────────────┬────┤
@@ -229,3 +229,67 @@ path.join([...paths])方法使用平台特定的分隔符把全部给定的 path
 - __dirname： 获得当前执行文件所在目录的完整目录名
 - __filename： 获得当前执行文件的带有完整绝对路径的文件名
 - process.cwd()：获得当前执行node命令时候的文件夹目录名
+
+# Node中的setHeader与writeHead
+## writeHead
+```js
+response.writeHead(statusCode[, statusMessage][, headers])
+```
+* statusCode <number>
+* statusMessage <string>
+* headers <Object> | <Array>
+* Returns: <http.ServerResponse>
+
+```js
+const body = 'hello world';
+response
+  .writeHead(200, {
+    'Content-Length': Buffer.byteLength(body),
+    'Content-Type': 'text/plain'
+  })
+  .end(body);
+```
+writeHead只能调用一次, 且必须在response.end前调用
+
+## setHeader
+```js
+// Returns content-type = text/plain
+const server = http.createServer((req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('X-Foo', 'bar');
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('ok');
+});
+```
+setHeader一次只能设置一个header值, 如果和writeHead同时存在, setHeader必须放在writeHead之前,否则会报错.  
+writeHead优先级最高,会覆盖setHeader的内容  
+writeHead 可以设状态码和状态信息，setHeader不能设置，只能设置header
+
+# HTTP请求头中有什么
+> [Http Headers 列表](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers)
+
+根据不同上下文，可将消息头分为：
+- General headers: 同时适用于请求和响应消息，但与最终消息主体中传输的数据无关的消息头。
+- Request headers: 包含更多有关要获取的资源或客户端本身信息的消息头。
+- Response headers: 包含有关响应的补充信息，如其位置或服务器本身（名称和版本等）的消息头。
+- Entity headers: 包含有关实体主体的更多信息，比如主体长(Content-Length)度或其MIME类型。
+
+> MIME 类型  
+媒体类型（通常称为 Multipurpose Internet Mail Extensions 或 MIME 类型 ）是一种标准，用来表示文档、文件或字节流的性质和格式, 比如 `text/html`
+
+A request message from a client to a server includes, within the
+   first line of that message, the method to be applied to the resource,
+   the identifier of the resource, and the protocol version in use.
+
+        Request       = Request-Line              ; Section 5.1
+                        *(( general-header        ; Section 4.5
+                         | request-header         ; Section 5.3
+                         | entity-header ) CRLF)  ; Section 7.1
+                        CRLF
+                        [ message-body ]          ; Section 4.3
+> CRLF: 回车换行（carriage return/line feed）                        
+
+
+![](README.md.assets/2022-05-05-12-20-45.png)
+
+
