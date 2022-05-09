@@ -32,10 +32,9 @@ server
       });
     } else if (pathname.indexOf("/test") === 0) {
       //测试区域
-      res.setHeader("Content-Type", "text/html");
       res.setHeader("X-Foo", "bar");
       res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end("ok");
+      res.end("哇,wow"); //不设置编码的话中文会乱码,so需要框架自动帮忙做这些
     } else {
       readFile("./public/views/404.html", (err, data) => {
         if (err) {
